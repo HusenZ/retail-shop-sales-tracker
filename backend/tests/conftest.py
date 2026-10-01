@@ -1,0 +1,84 @@
+import os
+
+TEST_DATABASE_URL = os.environ.get(
+    "TEST_DATABASE_URL", "postgresql+asyncpg://shop:shop@localhost:5432/shop_tracker_test"
+)
+# Point the app at the test database before any app module creates its engine.
+os.environ["DATABASE_URL"] = TEST_DATABASE_URL
+os.environ.setdefault("SECRET_KEY", "test-secret-key-that-is-long-enough-for-hs256")
+
+from collections.abc import AsyncIterator
+
+import pytest
+from httpx import ASGITransport, AsyncClient
+from sqlalchemy import text
+from sqlalchemy.ext.asyncio import AsyncEngine, async_sessionmaker, create_async_engine
+from sqlalchemy.pool import NullPool
+
+from app.db.base import Base
+from app.db.session import get_db
+from app.main import app
+
+PASSWORD = "secret-password"
+
+
+@pytest.fixture(scope="session")
+async def engine() -> AsyncIterator[AsyncEngine]:
+    engine = create_async_engine(TEST_DATABASE_URL, poolclass=NullPool)
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.drop_all)
+        await conn.run_sync(Base.metadata.create_all)
+    yield engine
+    await engine.dispose()
+
+
+@pytest.fixture(autouse=True)
+async def clean_tables(engine: AsyncEngine) -> AsyncIterator[None]:
+    yield
+    tables = ", ".join(table.name for table in Base.metadata.sorted_tables)
+    async with engine.begin() as conn:
+        await conn.execute(text(f"TRUNCATE {tables} CASCADE"))
+
+
+@pytest.fixture
+async def client(engine: AsyncEngine) -> AsyncIterator[AsyncClient]:
+    session_factory = async_sessionmaker(engine, expire_on_commit=False)
+
+    async def override_get_db():  # type: ignore[no-untyped-def]
+        async with session_factory() as session:
+            yield session
+
+    app.dependency_overrides[get_db] = override_get_db
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+        yield client
+    app.dependency_overrides.clear()
+
+
+async def register(client: AsyncClient, email: str = "owner@example.com") -> dict[str, str]:
+    response = await client.post(
+        "/api/v1/auth/register",
+        json={"email": email, "password": PASSWORD, "full_name": "Ravi Kumar"},
+    )
+    assert response.status_code == 201, response.text
+    return {"Authorization": f"Bearer {response.json()['access_token']}"}
+
+
+async def create_shop(client: AsyncClient, headers: dict[str, str], name: str = "Ravi Mobiles"):
+    response = await client.post(
+        "/api/v1/shop",
+        headers=headers,
+        json={"name": name, "owner_name": "Ravi Kumar", "phone": "9876543210"},
+    )
+    assert response.status_code == 201, response.text
+    return response.json()
+
+
+@pytest.fixture
+async def auth_headers(client: AsyncClient) -> dict[str, str]:
+    return await register(client)
+
+
+@pytest.fixture
+async def shop_headers(client: AsyncClient, auth_headers: dict[str, str]) -> dict[str, str]:
+    await create_shop(client, auth_headers)
+    return auth_headers
