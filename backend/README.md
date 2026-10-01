@@ -57,7 +57,7 @@ each test. CI additionally runs `alembic upgrade head && alembic check`.
 - Passwords are hashed with Argon2. Everything auth-specific lives in `app/core/security.py` and
   `app/api/deps.py` so it can be replaced with Supabase Auth later.
 
-## API (Phase 1)
+## API
 
 | Method | Path | Notes |
 |---|---|---|
@@ -67,4 +67,17 @@ each test. CI additionally runs `alembic upgrade head && alembic check`.
 | POST | `/api/v1/shop` | One shop per user; seeds default categories and sale types |
 | GET | `/api/v1/shop` | 404 means the user still needs to set up their shop |
 | PATCH | `/api/v1/shop` | Partial update |
+| GET | `/api/v1/categories` | `?include_inactive=true` to include disabled |
+| POST | `/api/v1/categories` | Names are unique per shop, ignoring case |
+| PATCH | `/api/v1/categories/{id}` | Rename; `is_active: false` disables |
+| GET | `/api/v1/sale-types` | Default first; `?include_inactive=true` |
+| POST | `/api/v1/sale-types` | `is_exchange` shows old-phone fields in Add Sale |
+| PATCH | `/api/v1/sale-types/{id}` | Rename, disable, `is_default: true` replaces the old default |
+| GET | `/api/v1/products` | Filters: `search`, `category_id`, `stock_status` (`in_stock`/`low`/`out`/`not_tracked`), `include_inactive` |
+| POST | `/api/v1/products` | Category must belong to the shop and be active |
+| GET | `/api/v1/products/{id}` | |
+| PATCH | `/api/v1/products/{id}` | Cannot change stock; `is_active: false` disables |
+| POST | `/api/v1/products/{id}/stock-adjustment` | `{"change": 5}` or `{"change": -2}`; never below zero |
 | GET | `/health` | |
+
+Money is sent and returned as strings with two decimals, e.g. `"15999.00"`.

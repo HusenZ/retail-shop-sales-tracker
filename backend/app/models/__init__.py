@@ -3,7 +3,7 @@
 from app.models.category import Category
 from app.models.customer import Customer
 from app.models.expense import Expense
-from app.models.product import Product
+from app.models.product import Product, StockStatus
 from app.models.sale import Payment, PaymentMethod, Sale, SaleItem
 from app.models.sale_type import SaleType
 from app.models.shop import Shop
@@ -20,5 +20,6 @@ __all__ = [
     "SaleItem",
     "SaleType",
     "Shop",
+    "StockStatus",
     "User",
 ]

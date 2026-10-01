@@ -82,3 +82,32 @@ async def auth_headers(client: AsyncClient) -> dict[str, str]:
 async def shop_headers(client: AsyncClient, auth_headers: dict[str, str]) -> dict[str, str]:
     await create_shop(client, auth_headers)
     return auth_headers
+
+
+@pytest.fixture
+async def other_shop_headers(client: AsyncClient) -> dict[str, str]:
+    """A second, unrelated shop for isolation tests."""
+    headers = await register(client, "other@example.com")
+    await create_shop(client, headers, name="Other Mobiles")
+    return headers
+
+
+async def category_id(
+    client: AsyncClient, headers: dict[str, str], name: str = "Mobile Phones"
+) -> str:
+    response = await client.get("/api/v1/categories", headers=headers)
+    return str(next(c["id"] for c in response.json() if c["name"] == name))
+
+
+async def create_product(client: AsyncClient, headers: dict[str, str], **overrides):
+    payload = {
+        "name": "Samsung A16",
+        "category_id": await category_id(client, headers),
+        "purchase_price": "14200.00",
+        "selling_price": "15999.00",
+        "stock_qty": 5,
+    }
+    payload.update(overrides)
+    response = await client.post("/api/v1/products", headers=headers, json=payload)
+    assert response.status_code == 201, response.text
+    return response.json()

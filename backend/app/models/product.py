@@ -1,12 +1,20 @@
 import uuid
 from decimal import Decimal
+from enum import StrEnum
 
-from sqlalchemy import CheckConstraint, ForeignKey, String
+from sqlalchemy import CheckConstraint, ColumnElement, ForeignKey, String, and_
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db.base import Base, IdMixin, TimestampMixin
 
 DEFAULT_LOW_STOCK_THRESHOLD = 2
+
+
+class StockStatus(StrEnum):
+    IN_STOCK = "in_stock"
+    LOW = "low"
+    OUT = "out"
+    NOT_TRACKED = "not_tracked"
 
 
 class Product(IdMixin, TimestampMixin, Base):
@@ -36,3 +44,22 @@ class Product(IdMixin, TimestampMixin, Base):
     stock_qty: Mapped[int] = mapped_column(default=0)
     low_stock_threshold: Mapped[int] = mapped_column(default=DEFAULT_LOW_STOCK_THRESHOLD)
     is_active: Mapped[bool] = mapped_column(default=True)
+
+    @property
+    def stock_status(self) -> StockStatus:
+        if not self.track_stock:
+            return StockStatus.NOT_TRACKED
+        if self.stock_qty == 0:
+            return StockStatus.OUT
+        if self.stock_qty <= self.low_stock_threshold:
+            return StockStatus.LOW
+        return StockStatus.IN_STOCK
+
+    # SQL versions of stock_status, kept next to it so the two rules cannot drift apart.
+    @classmethod
+    def is_out_of_stock(cls) -> ColumnElement[bool]:
+        return and_(cls.track_stock, cls.stock_qty == 0)
+
+    @classmethod
+    def is_low_stock(cls) -> ColumnElement[bool]:
+        return and_(cls.track_stock, cls.stock_qty > 0, cls.stock_qty <= cls.low_stock_threshold)

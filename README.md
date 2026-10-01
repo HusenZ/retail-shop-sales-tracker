@@ -65,7 +65,7 @@ ruff check . && ruff format --check . && mypy app
 | Phase | Scope | Status |
 |---|---|---|
 | 1 | Project setup, database, authentication, shop | Done |
-| 2 | Categories, sale types, products | |
+| 2 | Categories, sale types, products | Done |
 | 3 | Sales, payments, inventory | |
 | 4 | Customers, credit, expenses | |
 | 5 | Dashboard, reports | |
