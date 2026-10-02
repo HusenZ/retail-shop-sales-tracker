@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.errors import BusinessRuleError
 from app.models import Category, Product, StockStatus
 from app.schemas.product import ProductCreate, ProductUpdate
-from app.services.common import get_owned_or_404
+from app.services.common import get_owned_or_404, get_referenced
 
 LABEL = "Product"
 
@@ -87,9 +87,7 @@ async def adjust_stock(
 async def _ensure_usable_category(
     db: AsyncSession, shop_id: uuid.UUID, category_id: uuid.UUID
 ) -> None:
-    category = await db.get(Category, category_id)
-    if category is None or category.shop_id != shop_id:
-        raise BusinessRuleError("Category not found")
+    category = await get_referenced(db, Category, category_id, shop_id, "Category")
     if not category.is_active:
         raise BusinessRuleError(f'Category "{category.name}" is disabled')
 

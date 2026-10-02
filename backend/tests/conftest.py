@@ -111,3 +111,44 @@ async def create_product(client: AsyncClient, headers: dict[str, str], **overrid
     response = await client.post("/api/v1/products", headers=headers, json=payload)
     assert response.status_code == 201, response.text
     return response.json()
+
+
+async def sale_type_id(
+    client: AsyncClient, headers: dict[str, str], name: str = "New Phone"
+) -> str:
+    response = await client.get(
+        "/api/v1/sale-types", headers=headers, params={"include_inactive": True}
+    )
+    return str(next(t["id"] for t in response.json() if t["name"] == name))
+
+
+async def create_customer(engine: AsyncEngine, client: AsyncClient, headers, name="Rahul") -> str:
+    """Inserted directly until the customer API exists (Phase 4)."""
+    import uuid
+
+    shop_id = (await client.get("/api/v1/shop", headers=headers)).json()["id"]
+    customer_id = str(uuid.uuid4())
+    async with engine.begin() as conn:
+        await conn.execute(
+            text(
+                "INSERT INTO customers (id, shop_id, name, created_at, updated_at) "
+                "VALUES (:id, :shop_id, :name, now(), now())"
+            ),
+            {"id": customer_id, "shop_id": shop_id, "name": name},
+        )
+    return customer_id
+
+
+async def post_sale(client: AsyncClient, headers: dict[str, str], product_id: str, **overrides):
+    payload = {
+        "sale_type_id": await sale_type_id(client, headers),
+        "items": [{"product_id": product_id, "quantity": 1}],
+        "payment_method": "upi",
+    }
+    payload.update(overrides)
+    return await client.post("/api/v1/sales", headers=headers, json=payload)
+
+
+async def stock_of(client: AsyncClient, headers: dict[str, str], product_id: str) -> int:
+    response = await client.get(f"/api/v1/products/{product_id}", headers=headers)
+    return int(response.json()["stock_qty"])

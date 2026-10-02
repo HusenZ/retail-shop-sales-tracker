@@ -3,6 +3,7 @@ from decimal import Decimal
 from typing import Annotated, ClassVar, Self
 
 from pydantic import (
+    AfterValidator,
     BaseModel,
     BeforeValidator,
     ConfigDict,
@@ -11,13 +12,20 @@ from pydantic import (
     model_validator,
 )
 
+from app.core.money import to_money
+
 ShortText = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=120)]
 LongText = Annotated[str, StringConstraints(strip_whitespace=True, max_length=2000)]
 # Names of categories and sale types, shown as chips in the app.
 LabelText = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=80)]
 
 # Matches NUMERIC(12,2). Accepts JSON strings or numbers; always serialized as a string.
-Money = Annotated[Decimal, Field(ge=0, max_digits=12, decimal_places=2)]
+Money = Annotated[
+    Decimal,
+    Field(ge=0, max_digits=12, decimal_places=2),
+    # "100" and "100.0" become 100.00 so every amount has one format end to end.
+    AfterValidator(to_money),
+]
 
 _PHONE_SEPARATORS = re.compile(r"[\s\-()]")
 

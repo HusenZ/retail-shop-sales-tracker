@@ -78,6 +78,41 @@ each test. CI additionally runs `alembic upgrade head && alembic check`.
 | GET | `/api/v1/products/{id}` | |
 | PATCH | `/api/v1/products/{id}` | Cannot change stock; `is_active: false` disables |
 | POST | `/api/v1/products/{id}/stock-adjustment` | `{"change": 5}` or `{"change": -2}`; never below zero |
+| POST | `/api/v1/sales` | Normal or exchange sale; see below. 201 new, 200 if `client_ref` was already saved |
+| GET | `/api/v1/sales` | Newest first. Filters: `date_from`, `date_to` (shop-local days, inclusive), `sale_type_id`, `category_id`, `payment_method`, `customer_id`, `pending_only`; `limit`/`offset` |
+| GET | `/api/v1/sales/{id}` | Items and payments included |
+| POST | `/api/v1/sales/{id}/payments` | Collect pending money; cannot exceed what is pending |
+| GET | `/api/v1/payments/pending` | Total pending plus the unpaid sales, oldest first |
 | GET | `/health` | |
 
 Money is sent and returned as strings with two decimals, e.g. `"15999.00"`.
+Times are returned in UTC; send them with a timezone offset.
+
+## Recording a sale
+
+```json
+POST /api/v1/sales
+{
+  "sale_type_id": "…",
+  "items": [{"product_id": "…", "quantity": 1}],
+  "payment_method": "upi",
+  "discount": "500",
+  "customer_id": null,
+  "client_ref": "uuid-generated-by-the-app"
+}
+```
+
+Optional: `unit_price` per item (defaults to the product's selling price), `amount_paid`,
+`notes`, `sold_at`, and for exchange sale types
+`"exchange": {"device_name": "iPhone 12", "imei": null, "value": "18000"}`.
+
+The server, in one transaction: locks the products, checks they are active and in stock,
+calculates subtotal → discount → revenue, cost and profit (`app/services/sale_math.py`),
+subtracts the exchange value to get the amount due, records the payment, reduces stock and
+saves everything. If any step fails nothing is saved.
+
+Payment rules:
+- `amount_paid` defaults to the full amount due (or 0 when `payment_method` is `credit`).
+- Anything left unpaid needs a `customer_id`, so the shop knows who owes it.
+- A credit sale with money paid upfront is recorded as e.g. `cash` with `amount_paid` lower
+  than the total, so every rupee received has a real payment method.

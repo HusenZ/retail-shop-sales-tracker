@@ -7,7 +7,7 @@ from sqlalchemy import func, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.errors import ConflictError, NotFoundError
+from app.core.errors import BusinessRuleError, ConflictError, NotFoundError
 from app.models import Category, SaleType
 
 
@@ -26,6 +26,16 @@ async def get_owned_or_404(
     record = await db.get(model, record_id)
     if record is None or record.shop_id != shop_id:
         raise NotFoundError(f"{label} not found")
+    return record
+
+
+async def get_referenced(
+    db: AsyncSession, model: type[T], record_id: uuid.UUID, shop_id: uuid.UUID, label: str
+) -> T:
+    """Like get_owned_or_404, for ids sent inside a request body (a 422, not a 404)."""
+    record = await db.get(model, record_id)
+    if record is None or record.shop_id != shop_id:
+        raise BusinessRuleError(f"{label} not found")
     return record
 
 

@@ -7,6 +7,8 @@ from sqlalchemy import CheckConstraint, Enum, ForeignKey, Index, String, Text, U
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base, IdMixin, TimestampMixin, utc_now
+from app.models.customer import Customer
+from app.models.sale_type import SaleType
 
 
 class PaymentMethod(StrEnum):
@@ -77,8 +79,29 @@ class Sale(IdMixin, TimestampMixin, Base):
         back_populates="sale", cascade="all, delete-orphan", lazy="raise"
     )
     payments: Mapped[list["Payment"]] = relationship(
-        back_populates="sale", cascade="all, delete-orphan", lazy="raise"
+        back_populates="sale",
+        cascade="all, delete-orphan",
+        lazy="raise",
+        order_by="Payment.paid_at",
     )
+    sale_type: Mapped[SaleType] = relationship(lazy="raise")
+    customer: Mapped[Customer | None] = relationship(lazy="raise")
+
+    @property
+    def pending_amount(self) -> Decimal:
+        return self.amount_due - self.amount_paid
+
+    @property
+    def sale_type_name(self) -> str:
+        return self.sale_type.name
+
+    @property
+    def customer_name(self) -> str | None:
+        return self.customer.name if self.customer else None
+
+    @property
+    def product_names(self) -> list[str]:
+        return [item.product_name for item in self.items]
 
 
 class SaleItem(IdMixin, TimestampMixin, Base):
