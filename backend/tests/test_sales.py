@@ -1,7 +1,6 @@
 import asyncio
 
 from httpx import AsyncClient
-from sqlalchemy.ext.asyncio import AsyncEngine
 
 from tests.conftest import (
     category_id,
@@ -250,10 +249,10 @@ async def test_credit_sale_requires_a_customer(
 
 
 async def test_credit_sale_leaves_full_amount_pending(
-    client: AsyncClient, shop_headers: dict[str, str], engine: AsyncEngine
+    client: AsyncClient, shop_headers: dict[str, str]
 ) -> None:
     product = await create_product(client, shop_headers)
-    customer_id = await create_customer(engine, client, shop_headers)
+    customer_id = await create_customer(client, shop_headers)
 
     sale = (
         await post_sale(
@@ -268,10 +267,10 @@ async def test_credit_sale_leaves_full_amount_pending(
 
 
 async def test_part_payment_leaves_the_rest_pending(
-    client: AsyncClient, shop_headers: dict[str, str], engine: AsyncEngine
+    client: AsyncClient, shop_headers: dict[str, str]
 ) -> None:
     product = await create_product(client, shop_headers, selling_price="20000")
-    customer_id = await create_customer(engine, client, shop_headers)
+    customer_id = await create_customer(client, shop_headers)
 
     sale = (
         await post_sale(
@@ -289,10 +288,10 @@ async def test_part_payment_leaves_the_rest_pending(
 
 
 async def test_credit_with_upfront_amount_is_rejected(
-    client: AsyncClient, shop_headers: dict[str, str], engine: AsyncEngine
+    client: AsyncClient, shop_headers: dict[str, str]
 ) -> None:
     product = await create_product(client, shop_headers)
-    customer_id = await create_customer(engine, client, shop_headers)
+    customer_id = await create_customer(client, shop_headers)
 
     response = await post_sale(
         client,
@@ -320,10 +319,9 @@ async def test_another_shops_customer_cannot_be_used(
     client: AsyncClient,
     shop_headers: dict[str, str],
     other_shop_headers: dict[str, str],
-    engine: AsyncEngine,
 ) -> None:
     product = await create_product(client, shop_headers)
-    their_customer = await create_customer(engine, client, other_shop_headers)
+    their_customer = await create_customer(client, other_shop_headers)
 
     response = await post_sale(client, shop_headers, product["id"], customer_id=their_customer)
 
@@ -555,7 +553,7 @@ async def test_date_filter_uses_shop_local_days(
 
 
 async def test_filters_by_type_category_payment_method_and_pending(
-    client: AsyncClient, shop_headers: dict[str, str], engine: AsyncEngine
+    client: AsyncClient, shop_headers: dict[str, str]
 ) -> None:
     phone = await create_product(client, shop_headers, name="Phone")
     charger = await create_product(
@@ -566,7 +564,7 @@ async def test_filters_by_type_category_payment_method_and_pending(
         purchase_price="200",
         selling_price="499",
     )
-    customer_id = await create_customer(engine, client, shop_headers)
+    customer_id = await create_customer(client, shop_headers)
     accessories_type = await sale_type_id(client, shop_headers, "Accessories")
 
     await post_sale(client, shop_headers, phone["id"], payment_method="upi")

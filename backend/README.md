@@ -83,6 +83,13 @@ each test. CI additionally runs `alembic upgrade head && alembic check`.
 | GET | `/api/v1/sales/{id}` | Items and payments included |
 | POST | `/api/v1/sales/{id}/payments` | Collect pending money; cannot exceed what is pending |
 | GET | `/api/v1/payments/pending` | Total pending plus the unpaid sales, oldest first |
+| GET | `/api/v1/customers` | With purchases, transaction count and pending amount. `search` (name/phone), `pending_only` |
+| POST | `/api/v1/customers` | Only `name` required; phone unique per shop |
+| GET | `/api/v1/customers/{id}` | Customer's sales: `GET /sales?customer_id=…` |
+| PATCH | `/api/v1/customers/{id}` | |
+| GET | `/api/v1/expenses` | `date_from`, `date_to`, `limit`; returns `{total, expenses}` (total covers the whole period) |
+| POST | `/api/v1/expenses` | `spent_on` defaults to today (shop timezone), cannot be in the future |
+| DELETE | `/api/v1/expenses/{id}` | |
 | GET | `/health` | |
 
 Money is sent and returned as strings with two decimals, e.g. `"15999.00"`.

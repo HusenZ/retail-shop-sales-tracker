@@ -67,7 +67,7 @@ ruff check . && ruff format --check . && mypy app
 | 1 | Project setup, database, authentication, shop | Done |
 | 2 | Categories, sale types, products | Done |
 | 3 | Sales, payments, inventory | Done |
-| 4 | Customers, credit, expenses | |
+| 4 | Customers, credit, expenses | Done |
 | 5 | Dashboard, reports | |
 | 6 | Flutter app connected to backend | |
 | 7 | Offline support | |

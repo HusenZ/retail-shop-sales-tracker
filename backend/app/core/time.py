@@ -20,3 +20,7 @@ def day_range(
     start = start_of_day(first_day) if first_day else None
     end = start_of_day(last_day + timedelta(days=1)) if last_day else None
     return start, end
+
+
+def shop_today() -> date:
+    return datetime.now(shop_timezone()).date()

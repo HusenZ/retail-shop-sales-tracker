@@ -1,14 +1,11 @@
 from httpx import AsyncClient
-from sqlalchemy.ext.asyncio import AsyncEngine
 
 from tests.conftest import create_customer, create_product, post_sale
 
 
-async def _credit_sale(
-    client: AsyncClient, headers: dict[str, str], engine: AsyncEngine, price: str = "20000"
-):
+async def _credit_sale(client: AsyncClient, headers: dict[str, str], price: str = "20000"):
     product = await create_product(client, headers, selling_price=price)
-    customer_id = await create_customer(engine, client, headers)
+    customer_id = await create_customer(client, headers)
     response = await post_sale(
         client, headers, product["id"], payment_method="credit", customer_id=customer_id
     )
@@ -20,9 +17,9 @@ def _payments_url(sale_id: str) -> str:
 
 
 async def test_record_payment_reduces_pending(
-    client: AsyncClient, shop_headers: dict[str, str], engine: AsyncEngine
+    client: AsyncClient, shop_headers: dict[str, str]
 ) -> None:
-    sale = await _credit_sale(client, shop_headers, engine)
+    sale = await _credit_sale(client, shop_headers)
 
     response = await client.post(
         _payments_url(sale["id"]), headers=shop_headers, json={"amount": "15000", "method": "upi"}
@@ -36,9 +33,9 @@ async def test_record_payment_reduces_pending(
 
 
 async def test_payments_can_settle_the_sale(
-    client: AsyncClient, shop_headers: dict[str, str], engine: AsyncEngine
+    client: AsyncClient, shop_headers: dict[str, str]
 ) -> None:
-    sale = await _credit_sale(client, shop_headers, engine)
+    sale = await _credit_sale(client, shop_headers)
     url = _payments_url(sale["id"])
 
     await client.post(url, headers=shop_headers, json={"amount": "15000", "method": "cash"})
@@ -50,10 +47,8 @@ async def test_payments_can_settle_the_sale(
     assert again.status_code == 422
 
 
-async def test_overpayment_is_rejected(
-    client: AsyncClient, shop_headers: dict[str, str], engine: AsyncEngine
-) -> None:
-    sale = await _credit_sale(client, shop_headers, engine)
+async def test_overpayment_is_rejected(client: AsyncClient, shop_headers: dict[str, str]) -> None:
+    sale = await _credit_sale(client, shop_headers)
 
     response = await client.post(
         _payments_url(sale["id"]),
@@ -66,9 +61,9 @@ async def test_overpayment_is_rejected(
 
 
 async def test_payment_amount_must_be_positive(
-    client: AsyncClient, shop_headers: dict[str, str], engine: AsyncEngine
+    client: AsyncClient, shop_headers: dict[str, str]
 ) -> None:
-    sale = await _credit_sale(client, shop_headers, engine)
+    sale = await _credit_sale(client, shop_headers)
 
     response = await client.post(
         _payments_url(sale["id"]), headers=shop_headers, json={"amount": "0", "method": "cash"}
@@ -77,10 +72,8 @@ async def test_payment_amount_must_be_positive(
     assert response.status_code == 422
 
 
-async def test_payment_cannot_be_credit(
-    client: AsyncClient, shop_headers: dict[str, str], engine: AsyncEngine
-) -> None:
-    sale = await _credit_sale(client, shop_headers, engine)
+async def test_payment_cannot_be_credit(client: AsyncClient, shop_headers: dict[str, str]) -> None:
+    sale = await _credit_sale(client, shop_headers)
 
     response = await client.post(
         _payments_url(sale["id"]), headers=shop_headers, json={"amount": "10", "method": "credit"}
@@ -93,9 +86,8 @@ async def test_other_shops_cannot_record_payments(
     client: AsyncClient,
     shop_headers: dict[str, str],
     other_shop_headers: dict[str, str],
-    engine: AsyncEngine,
 ) -> None:
-    sale = await _credit_sale(client, shop_headers, engine)
+    sale = await _credit_sale(client, shop_headers)
 
     response = await client.post(
         _payments_url(sale["id"]),
@@ -112,12 +104,11 @@ async def test_pending_payments_summary(
     client: AsyncClient,
     shop_headers: dict[str, str],
     other_shop_headers: dict[str, str],
-    engine: AsyncEngine,
 ) -> None:
-    first = await _credit_sale(client, shop_headers, engine, price="20000")
-    second = await _credit_sale(client, shop_headers, engine, price="3000")
-    settled = await _credit_sale(client, shop_headers, engine, price="500")
-    await _credit_sale(client, other_shop_headers, engine, price="999")
+    first = await _credit_sale(client, shop_headers, price="20000")
+    second = await _credit_sale(client, shop_headers, price="3000")
+    settled = await _credit_sale(client, shop_headers, price="500")
+    await _credit_sale(client, other_shop_headers, price="999")
     await client.post(
         _payments_url(first["id"]), headers=shop_headers, json={"amount": "15000", "method": "upi"}
     )
