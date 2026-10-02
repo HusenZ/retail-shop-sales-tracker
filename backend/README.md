@@ -90,10 +90,27 @@ each test. CI additionally runs `alembic upgrade head && alembic check`.
 | GET | `/api/v1/expenses` | `date_from`, `date_to`, `limit`; returns `{total, expenses}` (total covers the whole period) |
 | POST | `/api/v1/expenses` | `spent_on` defaults to today (shop timezone), cannot be in the future |
 | DELETE | `/api/v1/expenses/{id}` | |
+| GET | `/api/v1/dashboard` | Today / this week (from Monday) / this month: sales total, count, profit; plus pending payments |
+| GET | `/api/v1/reports/summary` | `date_from` and `date_to` required (inclusive, shop-local days) |
 | GET | `/health` | |
 
 Money is sent and returned as strings with two decimals, e.g. `"15999.00"`.
 Times are returned in UTC; send them with a timezone offset.
+
+## Reports
+
+`GET /reports/summary?date_from=2026-09-01&date_to=2026-09-30` returns:
+
+- `totals`: sale count, revenue (after discounts), cost, gross profit, discount given,
+  expenses (by expense date) and net profit = gross profit − expenses.
+- `by_category` and `by_sale_type`: revenue, profit and quantity (items sold per category,
+  sales per sale type), largest first.
+- `by_payment_method`: how the period's revenue was settled — money received per method
+  (`cash`, `upi`, `card`, `other`), `credit` still pending, and `exchange` value of old
+  phones taken in. These rows add up to revenue. A later payment for a credit sale counts
+  toward the period of the original sale.
+
+All figures are aggregated in PostgreSQL (`app/services/report_service.py`).
 
 ## Recording a sale
 

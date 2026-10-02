@@ -10,6 +10,10 @@ def shop_timezone() -> ZoneInfo:
 
 def start_of_day(day: date) -> datetime:
     """Midnight at the start of `day` in the shop's timezone, as an aware datetime."""
+    # datetime subclasses date, so type checkers accept one here; it would silently
+    # drop the time and shift ranges by a day.
+    if isinstance(day, datetime):
+        raise TypeError("start_of_day expects a date, not a datetime")
     return datetime.combine(day, time.min, tzinfo=shop_timezone())
 
 
@@ -24,3 +28,12 @@ def day_range(
 
 def shop_today() -> date:
     return datetime.now(shop_timezone()).date()
+
+
+def week_start(day: date) -> date:
+    """Weeks start on Monday, as on Indian calendars."""
+    return day - timedelta(days=day.weekday())
+
+
+def month_start(day: date) -> date:
+    return day.replace(day=1)

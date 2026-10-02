@@ -7,6 +7,7 @@ from app.api import (
     expenses,
     payments,
     products,
+    reports,
     sale_types,
     sales,
     shop,
@@ -22,3 +23,4 @@ api_router.include_router(sales.router)
 api_router.include_router(payments.router)
 api_router.include_router(customers.router)
 api_router.include_router(expenses.router)
+api_router.include_router(reports.router)
