@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 
 /// A labelled number, e.g. "Profit ₹4,280".
 class StatTile extends StatelessWidget {
-  const StatTile({required this.label, required this.value, this.color, this.large = false, super.key});
+  const StatTile(
+      {required this.label, required this.value, this.color, this.large = false, super.key});
 
   final String label;
   final String value;
@@ -31,7 +32,8 @@ class StatTile extends StatelessWidget {
 
 /// Label on the left, amount on the right; used in totals and report rows.
 class AmountRow extends StatelessWidget {
-  const AmountRow({required this.label, required this.value, this.bold = false, this.color, super.key});
+  const AmountRow(
+      {required this.label, required this.value, this.bold = false, this.color, super.key});
 
   final String label;
   final String value;

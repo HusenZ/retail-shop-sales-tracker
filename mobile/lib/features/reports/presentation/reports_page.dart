@@ -101,7 +101,7 @@ class ReportsView extends StatelessWidget {
               _ when summary == null => const LoadingView(),
               _ => RefreshIndicator(
                   onRefresh: cubit.load,
-                  child: _ReportContent(summary: summary!),
+                  child: _ReportContent(summary: summary),
                 ),
             },
           ),

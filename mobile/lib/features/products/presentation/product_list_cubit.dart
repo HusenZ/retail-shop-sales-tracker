@@ -45,8 +45,7 @@ class ProductListState extends Equatable {
 
 /// Product list with search and stock filter; also backs the product picker in Add Sale.
 class ProductListCubit extends Cubit<ProductListState> {
-  ProductListCubit(this._products, {Stream<void>? saleChanges})
-      : super(const ProductListState()) {
+  ProductListCubit(this._products, {Stream<void>? saleChanges}) : super(const ProductListState()) {
     _subscriptions = [
       _products.changes.listen((_) => load()),
       if (saleChanges != null) saleChanges.listen((_) => load()),

@@ -15,8 +15,7 @@ class CustomerRepository with DataChanges {
     return rows.map(Customer.fromJson).toList();
   }
 
-  Future<Customer> get(String id) async =>
-      Customer.fromJson(await _api.getJson('/customers/$id'));
+  Future<Customer> get(String id) async => Customer.fromJson(await _api.getJson('/customers/$id'));
 
   Future<Customer> create(CustomerInput input) async {
     final customer = Customer.fromJson(await _api.postJson('/customers', body: input.toJson()));

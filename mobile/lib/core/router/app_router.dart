@@ -65,8 +65,7 @@ GoRouter createRouter(AuthCubit authCubit) {
       ),
       GoRoute(
         path: '/customers/:customerId',
-        builder: (_, state) =>
-            CustomerDetailPage(customerId: state.pathParameters['customerId']!),
+        builder: (_, state) => CustomerDetailPage(customerId: state.pathParameters['customerId']!),
       ),
       GoRoute(
         path: '/settings/shop',
@@ -99,10 +98,8 @@ String? _redirect(AuthStatus status, String location) {
 /// Re-runs the redirect only when the session status changes, not on every form update.
 class _StatusListenable extends ChangeNotifier {
   _StatusListenable(AuthCubit cubit) {
-    _subscription = cubit.stream
-        .map((state) => state.status)
-        .distinct()
-        .listen((_) => notifyListeners());
+    _subscription =
+        cubit.stream.map((state) => state.status).distinct().listen((_) => notifyListeners());
   }
 
   late final StreamSubscription<AuthStatus> _subscription;

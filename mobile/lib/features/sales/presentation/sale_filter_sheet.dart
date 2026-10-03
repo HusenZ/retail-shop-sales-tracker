@@ -211,8 +211,9 @@ class _Dropdown extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DropdownButtonFormField<String?>(
-      // Until options load, a selected id has no matching item.
-      value: options.containsKey(value) ? value : null,
+      // Rebuilt once options load, since a selected id has no matching item before that.
+      key: ValueKey(options.length),
+      initialValue: options.containsKey(value) ? value : null,
       decoration: InputDecoration(labelText: label),
       items: [
         const DropdownMenuItem<String?>(child: Text('Any')),

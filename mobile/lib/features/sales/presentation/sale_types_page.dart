@@ -43,7 +43,7 @@ class SaleTypesCubit extends Cubit<SaleTypesState> {
   Future<void> makeDefault(SaleType saleType) =>
       _run(() => _saleTypes.update(saleType.id, isDefault: true));
 
-  Future<void> _run(Future<Object?> Function() change) async {
+  Future<void> _run(Future<void> Function() change) async {
     try {
       await change();
       final saleTypes = await _saleTypes.list(includeInactive: true);

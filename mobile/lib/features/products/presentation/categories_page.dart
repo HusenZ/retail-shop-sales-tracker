@@ -40,7 +40,7 @@ class CategoriesCubit extends Cubit<CategoriesState> {
       _run(() => _categories.update(category.id, isActive: isActive));
 
   /// Runs a change, then reloads the list so it always matches the server.
-  Future<void> _run(Future<Object?> Function() change) async {
+  Future<void> _run(Future<void> Function() change) async {
     try {
       await change();
       final categories = await _categories.list(includeInactive: true);

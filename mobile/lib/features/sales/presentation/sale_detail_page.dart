@@ -133,8 +133,10 @@ class _SaleDetails extends StatelessWidget {
         if (sale.isExchange) ...[
           const SectionTitle('Old phone taken'),
           AmountRow(
-            label: [sale.exchangeDeviceName!, if (sale.exchangeDeviceImei != null) sale.exchangeDeviceImei!]
-                .join(' · '),
+            label: [
+              sale.exchangeDeviceName!,
+              if (sale.exchangeDeviceImei != null) sale.exchangeDeviceImei!
+            ].join(' · '),
             value: '-${formatRupees(sale.exchangeValue)}',
           ),
           AmountRow(label: 'Customer pays', value: formatRupees(summary.amountDue), bold: true),
@@ -221,7 +223,8 @@ class _PaymentSheetState extends State<_PaymentSheet> {
             Text('Record payment', style: Theme.of(context).textTheme.titleLarge),
             Text('${formatRupees(widget.pending)} pending'),
             const SizedBox(height: 16),
-            MoneyField(label: 'Amount received', controller: _amount, isRequired: true, allowZero: false),
+            MoneyField(
+                label: 'Amount received', controller: _amount, isRequired: true, allowZero: false),
             const SizedBox(height: 16),
             Wrap(
               spacing: 8,

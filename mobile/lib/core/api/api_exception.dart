@@ -14,8 +14,7 @@ class ApiException implements Exception {
     );
   }
 
-  static const noConnectionMessage =
-      'No internet connection. Check your network and try again.';
+  static const noConnectionMessage = 'No internet connection. Check your network and try again.';
 
   final String message;
 

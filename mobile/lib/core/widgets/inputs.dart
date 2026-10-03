@@ -46,8 +46,7 @@ class MoneyField extends StatelessWidget {
   }
 }
 
-String? requiredText(String? value) =>
-    (value == null || value.trim().isEmpty) ? 'Required' : null;
+String? requiredText(String? value) => (value == null || value.trim().isEmpty) ? 'Required' : null;
 
 String? optionalPhone(String? value) {
   final digits = (value ?? '').replaceAll(RegExp(r'[\s\-()]'), '');

@@ -180,8 +180,7 @@ class SaleDetail extends Equatable {
         exchangeDeviceImei: json['exchange_device_imei'] as String?,
         notes: json['notes'] as String?,
         items: (json['items'] as List<dynamic>).cast<Json>().map(SaleItem.fromJson).toList(),
-        payments:
-            (json['payments'] as List<dynamic>).cast<Json>().map(Payment.fromJson).toList(),
+        payments: (json['payments'] as List<dynamic>).cast<Json>().map(Payment.fromJson).toList(),
       );
 
   final SaleSummary summary;

@@ -107,7 +107,8 @@ void main() {
       if (attempts == 1) throw const ApiException(ApiException.noConnectionMessage);
       return savedSale();
     });
-    final cubit = await loadedCubit()..selectProduct(phone);
+    final cubit = await loadedCubit()
+      ..selectProduct(phone);
 
     await cubit.submit();
     expect(cubit.state.status, AddSaleStatus.ready);

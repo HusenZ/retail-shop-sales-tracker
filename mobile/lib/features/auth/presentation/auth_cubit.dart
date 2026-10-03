@@ -26,8 +26,7 @@ class AuthState extends Equatable {
   final bool isSubmitting;
   final String? errorMessage;
 
-  AuthState submitting() =>
-      AuthState(status: status, user: user, shop: shop, isSubmitting: true);
+  AuthState submitting() => AuthState(status: status, user: user, shop: shop, isSubmitting: true);
 
   AuthState failed(String message) =>
       AuthState(status: status, user: user, shop: shop, errorMessage: message);

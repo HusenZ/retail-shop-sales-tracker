@@ -137,7 +137,7 @@ class _ProductFormState extends State<_ProductForm> {
           ),
           const SizedBox(height: 16),
           DropdownButtonFormField<String>(
-            value: _categoryId,
+            initialValue: _categoryId,
             decoration: const InputDecoration(labelText: 'Category'),
             items: [
               for (final category in state.categories)

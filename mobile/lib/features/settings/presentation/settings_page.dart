@@ -23,10 +23,11 @@ class SettingsPage extends StatelessWidget {
             onTap: () => context.push('/settings/shop'),
           ),
           const Divider(),
-          _Link(icon: Icons.sell_outlined, title: 'Sale types', path: '/settings/sale-types'),
-          _Link(icon: Icons.category_outlined, title: 'Categories', path: '/settings/categories'),
-          _Link(icon: Icons.people_outline, title: 'Customers', path: '/customers'),
-          _Link(icon: Icons.receipt_outlined, title: 'Expenses', path: '/expenses'),
+          const _Link(icon: Icons.sell_outlined, title: 'Sale types', path: '/settings/sale-types'),
+          const _Link(
+              icon: Icons.category_outlined, title: 'Categories', path: '/settings/categories'),
+          const _Link(icon: Icons.people_outline, title: 'Customers', path: '/customers'),
+          const _Link(icon: Icons.receipt_outlined, title: 'Expenses', path: '/expenses'),
           const Divider(),
           ListTile(
             leading: const Icon(Icons.logout),

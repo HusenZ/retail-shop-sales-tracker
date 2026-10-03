@@ -139,7 +139,7 @@ class ExpensesPage extends StatelessWidget {
                         onRetry: cubit.load,
                       ),
                     _ when expenses == null => const LoadingView(),
-                    _ => _ExpenseList(expenses: expenses!),
+                    _ => _ExpenseList(expenses: expenses),
                   },
                 ),
               ],

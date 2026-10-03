@@ -12,7 +12,10 @@ void main() {
   test('reads the first validation error without the Pydantic prefix', () {
     final body = {
       'detail': [
-        {'msg': 'Value error, Each product can appear only once', 'loc': ['body', 'items']},
+        {
+          'msg': 'Value error, Each product can appear only once',
+          'loc': ['body', 'items']
+        },
       ],
     };
 
