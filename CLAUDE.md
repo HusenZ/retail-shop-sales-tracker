@@ -34,6 +34,18 @@ alembic upgrade head && alembic check
 uvicorn app.main:app --reload
 ```
 
+## Mobile (`mobile/`)
+
+- Flutter + flutter_bloc (Cubits) + go_router + Dio. Features under `lib/features/<name>/`
+  with `domain/` (entities), `data/` (repositories), `presentation/` (cubits + screens).
+- Money is `Decimal` (package `decimal`), parsed from API strings; never `double`, except
+  to size a chart bar.
+- The app never computes saved figures. Add Sale shows a preview total only; the saved sale,
+  profit, dashboard and reports come from the API.
+- Every sale sends a `client_ref` created once per sale and reused on retry.
+- Repositories that change data mix in `DataChanges`; screens subscribe to refresh.
+- Checks: `flutter analyze && flutter test` (CI: `.github/workflows/mobile.yml`).
+
 ## Workflow
 
 Work in phases (see README status table). After each phase: tests, lint, type check,

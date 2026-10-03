@@ -7,7 +7,7 @@ requirements.
 ## Architecture
 
 ```text
-mobile/   Flutter app (BLoC, GoRouter, Dio, Drift for offline)   ← planned, Phase 6
+mobile/   Flutter app (BLoC, GoRouter, Dio; Drift for offline in Phase 7)
    │  HTTPS + JSON, Bearer token
    ▼
 backend/  FastAPI + SQLAlchemy (async) + Alembic
@@ -25,7 +25,7 @@ PostgreSQL
 
 - Python 3.11+
 - PostgreSQL 16 (or Docker to run it)
-- Flutter 3.x (from Phase 6)
+- Flutter 3.24+ (stable)
 
 ## Quick start (backend)
 
@@ -52,12 +52,26 @@ API docs: http://localhost:8000/docs
 
 See [`backend/README.md`](backend/README.md) for environment variables, migrations and tests.
 
+## Quick start (mobile)
+
+```bash
+cd mobile
+flutter create . --project-name retail_shop --org in.shopsales --platforms=android,ios  # once
+flutter pub get
+flutter run --dart-define=API_BASE_URL=http://10.0.2.2:8000
+```
+
+See [`mobile/README.md`](mobile/README.md) for Android network settings and running on a phone.
+
 ## Running tests
 
 ```bash
 cd backend
 pytest              # needs the shop_tracker_test database
 ruff check . && ruff format --check . && mypy app
+
+cd ../mobile
+flutter analyze && flutter test
 ```
 
 ## Project status
@@ -69,7 +83,7 @@ ruff check . && ruff format --check . && mypy app
 | 3 | Sales, payments, inventory | Done |
 | 4 | Customers, credit, expenses | Done |
 | 5 | Dashboard, reports | Done |
-| 6 | Flutter app connected to backend | |
+| 6 | Flutter app connected to backend | Done (verify locally / in CI) |
 | 7 | Offline support | |
 | 8 | Subscription foundation | |
 | 9 | Polish and testing | |
