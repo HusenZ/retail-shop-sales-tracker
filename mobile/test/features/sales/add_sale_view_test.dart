@@ -58,7 +58,8 @@ void main() {
     await pumpView(tester);
 
     cubit.selectProduct(phone);
-    await tester.pump();
+    // The cubit delivers state asynchronously; settle so the screen rebuilds with it.
+    await tester.pumpAndSettle();
 
     expect(find.text('Samsung A16'), findsOneWidget);
     expect(find.text('Save sale · ₹1,000'), findsOneWidget);
@@ -69,7 +70,8 @@ void main() {
   testWidgets('saving shows the profit calculated by the server', (tester) async {
     await pumpView(tester);
     cubit.selectProduct(phone);
-    await tester.pump();
+    // The cubit delivers state asynchronously; settle so the screen rebuilds with it.
+    await tester.pumpAndSettle();
 
     await tester.tap(find.text('Save sale · ₹1,000'));
     await tester.pumpAndSettle();
@@ -94,7 +96,8 @@ void main() {
   testWidgets('credit explains that the amount stays pending', (tester) async {
     await pumpView(tester);
     cubit.selectProduct(phone);
-    await tester.pump();
+    // The cubit delivers state asynchronously; settle so the screen rebuilds with it.
+    await tester.pumpAndSettle();
 
     await tester.tap(find.widgetWithText(ChoiceChip, 'Credit'));
     await tester.pump();
