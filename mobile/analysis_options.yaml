@@ -10,7 +10,6 @@ linter:
     - prefer_const_constructors
     - prefer_final_locals
     - prefer_single_quotes
-    - require_trailing_commas
     - unawaited_futures
 
 formatter:
