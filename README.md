@@ -83,7 +83,7 @@ flutter analyze && flutter test
 | 3 | Sales, payments, inventory | Done |
 | 4 | Customers, credit, expenses | Done |
 | 5 | Dashboard, reports | Done |
-| 6 | Flutter app connected to backend | Done (verify locally / in CI) |
+| 6 | Flutter app connected to backend | Done |
 | 7 | Offline support | |
 | 8 | Subscription foundation | |
 | 9 | Polish and testing | |
