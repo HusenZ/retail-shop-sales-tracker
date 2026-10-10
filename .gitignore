@@ -1,0 +1,26 @@
+# Secrets
+.env
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Flutter / Dart
+mobile/.dart_tool/
+mobile/build/
+mobile/.flutter-plugins
+mobile/.flutter-plugins-dependencies
+mobile/android/local.properties
+mobile/ios/Flutter/Generated.xcconfig
+
+# Editors / OS
+.idea/
+.vscode/
+.DS_Store
